@@ -11,7 +11,7 @@ const Home = () => {
     useEffect(() => {
         const fetchRecipes = async () => {
             try {
-                const res = await axios.get('http://localhost:3000/api/recipe/get-all-recipes');
+                const res = await axios.get('http://localhost:3000/api/recipes/get-all-recipes');
                 setRecipes(res.data);
                 setFilteredRecipes(res.data)
             } catch (err) {
@@ -77,7 +77,7 @@ const Home = () => {
                 <div className= "w-20 h-1 bg-[#FF4500] mt-2"></div>
                </div>
                <div className= "flex gap-4">
-                {['All', 'Veg', 'Non,-Veg','Desserts'].map((type) => (
+                {['All', 'Veg', 'Non-Veg','Desserts'].map((type) => (
                     <button 
                     key={type}
                     onClick={() => handleFilter(type)}
