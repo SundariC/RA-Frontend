@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-// import { motion } from "framer-motion";
 import {
   Mail,
   Lock,
@@ -9,13 +8,13 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
+import { loginAPI, signupAPI, forgotPasswordAPI } from "../services/api"; 
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true); // Default-ah Login form
+  const [isLogin, setIsLogin] = useState(true); 
   const [isForgot, setIsForgot] = useState(false);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -29,8 +28,7 @@ const Auth = () => {
   const handlePasswordChange = (e) => {
     const val = e.target.value;
     setPassword(val);
-    const passwordRegex =
-      /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
+    const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
     if (!isLogin && !isForgot && val.length > 0 && !passwordRegex.test(val)) {
       setPasswordError(
         "Password Must be Min 8 chars, 1 number & 1 special character required.",
@@ -42,41 +40,33 @@ const Auth = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const endpoint = isForgot
-      ? "forgot-password"
-      : isLogin
-        ? "login"
-        : "register";
     try {
-      const response = await axios.post(
-        `http://localhost:3000/api/user/${endpoint}`,
-        {
-          username: !isLogin && !isForgot ? username : undefined,
-          email,
-          password: !isForgot ? password : undefined,
-        },
-      );
-
+      let response;
+      
+      // Ippo endpoints-ku bathila direct-ah API methods call pandrom
       if (isForgot) {
+        response = await forgotPasswordAPI({ email });
         toast.success("Reset link sent to your email! Check your email");
         setIsForgot(false);
       } else if (isLogin) {
+        response = await loginAPI({ email, password });
+        
         window.localStorage.setItem("token", response.data.token);
         window.localStorage.setItem("userID", response.data.userID);
         window.localStorage.setItem("username", response.data.username);
         const userEmail = response.data.email || "chef.user@example.com";
-    window.localStorage.setItem("email", userEmail);
+        window.localStorage.setItem("email", userEmail);
 
         setUser({
-        token: response.data.token,
-        userID: response.data.userID,
-        username: response.data.username,
-        email: userEmail,
-      });
+          token: response.data.token,
+          userID: response.data.userID,
+          username: response.data.username,
+          email: userEmail,
+        });
         toast.success("Welcome Back!");
         navigate("/");
-        // window.location.reload();
       } else {
+        response = await signupAPI({ username, email, password });
         toast.success("Registration Successful! Please Login.");
         setIsLogin(true);
       }
@@ -108,7 +98,7 @@ const Auth = () => {
             <button
               onClick={() => {
                 setIsLogin(!isLogin);
-                setPasswordError(""); // Form switch panna error-ah clear panrom
+                setPasswordError(""); 
               }}
               className="border-2 border-white/50 hover:border-white hover:bg-white hover:text-[#FF4500] px-8 py-3 rounded-full font-semibold transition-all w-fit"
             >
@@ -131,7 +121,7 @@ const Auth = () => {
                 {isForgot ? "Reset Password" : isLogin ? "Login" : "Register"}
               </h3>
             </div>
-            {/* Username - Only for Register */}
+            
             {!isLogin && !isForgot && (
               <div className="relative">
                 <User className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
@@ -145,7 +135,6 @@ const Auth = () => {
               </div>
             )}
 
-            {/* Email */}
             <div className="relative">
               <Mail className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
               <input
@@ -157,7 +146,6 @@ const Auth = () => {
               />
             </div>
 
-            {/* Password */}
             {!isForgot && (
               <div className="relative">
                 <Lock className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
@@ -187,7 +175,7 @@ const Auth = () => {
                 )}
               </div>
             )}
-            {/* Forgot Password Link - Only for Login */}
+
             {isLogin && !isForgot && (
               <div className="flex justify-end mt-[-10px]">
                 <button

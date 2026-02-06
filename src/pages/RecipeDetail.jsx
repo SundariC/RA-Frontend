@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { fetchRecipeById } from "../services/api"; 
 import { Clock, Utensils, ArrowLeft, Youtube, CheckCircle2, Play, Flame } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -15,8 +15,8 @@ const RecipeDetails = () => {
     const fetchRecipe = async () => {
       try {
         setLoading(true);
-        // Using Port 3000 as per your server setup
-        const res = await axios.get(`http://localhost:3000/api/recipes/get-recipes/${id}`);
+        // Centralized API call
+        const res = await fetchRecipeById(id);
         setRecipe(res.data);
       } catch (err) {
         console.error(err);
@@ -61,11 +61,9 @@ const RecipeDetails = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
           <div className="relative group rounded-[2.5rem] overflow-hidden shadow-2xl h-[400px] border-4 border-white">
             <img 
-              // Combined Logic: Backend-la irunthu vara path-a full URL-a mathuroam
               src={recipe.image} 
               alt={recipe.title} 
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
-            //   onError={(e) => { e.target.src = "https://via.placeholder.com/500?text=No+Image+Found"; }}
             />
             <div className="absolute top-4 left-4 bg-[#FF4500] text-white px-5 py-1.5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg italic">
               {recipe.category}
@@ -120,13 +118,12 @@ const RecipeDetails = () => {
             </div>
           </div>
 
-          {/* Instructions as Paragraph (Enter-space format) */}
+          {/* Instructions */}
           <div className="lg:col-span-2">
             <h3 className="text-3xl font-black text-slate-900 mb-8 italic border-b-4 border-orange-100 inline-block uppercase tracking-tighter">
               The Method
             </h3>
             <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-50 min-h-[300px]">
-              {/* whitespace-pre-line is the MAGIC here */}
               <p className="text-slate-600 text-lg leading-[1.8] font-semibold whitespace-pre-line italic">
                 {recipe.instructions}
               </p>

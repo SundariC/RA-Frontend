@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
+// axios thookiyaachu, api.js-la irunthu createRecipeAPI matum import pannirukaen
+import { createRecipeAPI } from "../services/api"; 
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Utensils, Image, Type, ListOrdered, Save, Youtube, FileText } from "lucide-react";
@@ -13,9 +14,9 @@ const AddRecipe = () => {
     title: "",
     description: "",
     youtubeUrl: "",
-    ingredients: "", // String-ah vaangi backend-la array-ah mathalaam
-    instructions: "", // String-ah vaangi backend-la array-ah mathalaam
-    category: "Veg", // Schema Enum: 'Veg', 'Non-Veg', 'Dessert'
+    ingredients: "", 
+    instructions: "", 
+    category: "Veg", 
     userOwner: user?.userID,
   });
   
@@ -37,22 +38,20 @@ const AddRecipe = () => {
         return;
     }
     
-    // Form data create panrom (Image upload kku ithu thevai)
     const formData = new FormData();
     formData.append("title", recipe.title);
     formData.append("description", recipe.description);
     formData.append("youtubeUrl", recipe.youtubeUrl);
     formData.append("category", recipe.category);
     formData.append("userOwner", user.userID);
-    
-    // Schema-la Array-ah irukurathaala, comma-ve vachi split panni anupuroam
     formData.append("ingredients", recipe.ingredients); 
     formData.append("instructions", recipe.instructions);
     
     if (image) formData.append("image", image);
 
     try {
-      await axios.post("http://localhost:3000/api/recipes/create-recipes", formData);
+      // Axios-ku bathila namma API function
+      await createRecipeAPI(formData);
       toast.success("Recipe shared successfully!");
       navigate("/dashboard");
     } catch (err) {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+// axios thookiyaachu, namma central api methods import panniyaachu
+import { fetchRecipeById, updateRecipeAPI } from "../services/api"; 
 import { Utensils, Image as ImageIcon, Youtube, Send, ArrowLeft, Loader2, AlignLeft } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -23,8 +24,9 @@ const EditRecipe = () => {
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/recipes/get-recipes/${id}`);
-        // Populate form with existing data
+        // Central API method use pannidalaam
+        const res = await fetchRecipeById(id);
+        
         setFormData({
           title: res.data.title || "",
           description: res.data.description || "",
@@ -56,18 +58,13 @@ const EditRecipe = () => {
     data.append("instructions", formData.instructions);
     data.append("youtubeUrl", formData.youtubeUrl);
     
-    // Only append image if a new file is selected
     if (formData.image) {
       data.append("image", formData.image);
     }
 
     try {
-      // Check if your backend route is 'update-recipe' or 'update-recipes'
-      const response = await axios.put(`http://localhost:3000/api/recipes/update-recipes/${id}`, data, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+      // Central update API method
+      const response = await updateRecipeAPI(id, data);
 
       if (response.status === 200 || response.status === 204) {
         toast.success("Recipe updated successfully! ✨");
@@ -75,7 +72,7 @@ const EditRecipe = () => {
       }
     } catch (err) {
       console.error("Update Error:", err.response?.data || err.message);
-      toast.error(err.response?.data?.message || "Update failed! Please check backend.");
+      toast.error(err.response?.data?.message || "Update failed!");
     } finally {
       setIsUpdating(false);
     }

@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+// import axios from "axios";
 import toast from "react-hot-toast";
 import { Lock, Eye, EyeOff } from "lucide-react";
+import { resetPasswordAPI } from "../services/api";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { id, token } = useParams(); // URL-la irunthu id and token edukkum
+  const { id, token } = useParams(); 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -16,7 +17,7 @@ const ResetPassword = () => {
     setLoading(true);
     try {
       // Backend URL path check pannikonga
-      const res = await axios.post(`http://localhost:3000/api/user/reset-password/${id}/${token}`, { password });
+      const res = await resetPasswordAPI(id, token, { password });
       
       if (res.status === 200) {
         toast.success("Password reset successfully! Please login.");

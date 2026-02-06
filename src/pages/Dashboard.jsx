@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Plus, Trash2, Edit, Loader2, ChefHat, XCircle, Eye } from "lucide-react";
-import axios from "axios";
+import { getMyRecipes, deleteRecipeAPI } from "../services/api"; 
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -16,7 +16,7 @@ const Dashboard = () => {
     const fetchRecipes = async () => {
       if (!user?.userID) return;
       try {
-        const res = await axios.get(`http://localhost:3000/api/recipes/user/${user.userID}`);
+        const res = await getMyRecipes(user.userID);
         setMyRecipes(res.data);
       } catch (err) {
         console.log("Fetch Error Details:", err.response);
@@ -27,15 +27,14 @@ const Dashboard = () => {
     fetchRecipes();
   }, [user?.userID]);
 
-  // This opens our custom modal instead of window.confirm
   const openDeleteModal = (id) => {
     setDeleteId(id);
   };
 
   const confirmDelete = async () => {
     try {
-      // Corrected singular/plural based on your earlier route discussion
-      await axios.delete(`http://localhost:3000/api/recipes/delete-recipe/${deleteId}`);
+      // Axios delete-ku bathila namma API method
+      await deleteRecipeAPI(deleteId);
       toast.success("Recipe deleted successfully!");
       setMyRecipes(myRecipes.filter((r) => r._id !== deleteId));
       setDeleteId(null); 
@@ -91,7 +90,6 @@ const Dashboard = () => {
                     {recipe.description}
                   </p>
                   
-                  {/* View Button - Matches your Card style */}
                   <div className="mt-auto">
                     <button 
                       onClick={() => navigate(`/recipes/get-recipes/${recipe._id}`)} 
@@ -129,14 +127,6 @@ const Dashboard = () => {
           </div>
         </div>
       )}
-
-      {/* Floating Add Button */}
-      {/* <Link to="/add-recipe" className="fixed bottom-10 right-10 w-16 h-16 bg-[#FF4500] text-white rounded-2xl shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50 group">
-        <Plus size={32} />
-        <span className="absolute right-20 bg-slate-800 text-white text-xs font-bold py-2 px-4 rounded-lg opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap">
-          Add New Recipe
-        </span>
-      </Link> */}
     </div>
   );
 };

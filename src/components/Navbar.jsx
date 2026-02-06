@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { User, LayoutDashboard, Home, LogOut, MessageSquare, ChevronDown, Send, Loader2 } from "lucide-react";
-import axios from "axios";
+// axios thookiyaachu, namma central api import panniyaachu
+import { sendFeedbackAPI } from "../services/api"; 
 import toast from "react-hot-toast";
 
 const Navbar = () => {
-  const { user, logout } = useAuth(); // Make sure your user object has 'email'
+  const { user, logout } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showFeedbackInput, setShowFeedbackInput] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState("");
@@ -24,16 +25,18 @@ const Navbar = () => {
 
     setIsSending(true);
     try {
-      await axios.post("http://localhost:3000/api/user/send-feedback", {
-        // user.email illana localstorage la irunthu eduthukalam
+      // Centralized API call
+      await sendFeedbackAPI({
         email: user?.email || localStorage.getItem("userEmail"), 
         message: feedbackMsg,
       });
+      
       toast.success("Feedback sent!");
       setFeedbackMsg("");
       setShowFeedbackInput(false);
     } catch (err) {
-      toast.error("Failed to send feedback",err);
+      toast.error("Failed to send feedback");
+      console.error(err);
     } finally {
       setIsSending(false);
     }
@@ -72,13 +75,12 @@ const Navbar = () => {
                 <div className="fixed inset-0 z-10" onClick={() => {setIsDropdownOpen(false); setShowFeedbackInput(false);}}></div>
                 <div className="absolute right-0 mt-3 w-72 bg-white rounded-3xl shadow-2xl border border-gray-100 z-20 overflow-hidden py-2 animate-in fade-in zoom-in duration-150">
                   
-                  {/* Header: User Email Fix */}
+                  {/* Header */}
                   <div className="px-5 py-4 border-b border-gray-50 flex flex-col items-center">
                     <div className="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center text-[#FF4500] mb-2 font-bold text-lg">
                       {user.username?.charAt(0).toUpperCase()}
                     </div>
                     <p className="font-bold text-gray-800 tracking-tight text-lg leading-tight uppercase">Chef {user.username}</p>
-                    {/* Yengala email varalana localstorage backup use pannum */}
                     <p className="text-[11px] text-gray-400 truncate w-full text-center italic mt-1 px-2">
                         {user.email || localStorage.getItem("email") || "Email not found"}
                     </p>

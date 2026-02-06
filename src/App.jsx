@@ -11,6 +11,7 @@ import AddRecipe from './pages/AddRecipe';
 import Dashboard from './pages/Dashboard';
 import Footer from './components/Footer';
 import EditRecipe from './pages/EditRecipe';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
     return (
@@ -24,6 +25,7 @@ function App() {
             <Route path= "/" element={<Home />} />
             <Route path= "/auth" element={<Auth />} />
             <Route path= "/recipes/get-recipes/:id" element={<RecipeDetail />} />
+            <Route path="/reset-password/:id/:token" element={<ResetPassword />} />
             <Route path= "/add-recipe" element={<AddRecipe />} />
             <Route path="/edit-recipe/:id" element={<EditRecipe />} />
             <Route path= "/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
