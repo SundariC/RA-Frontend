@@ -33,7 +33,7 @@ const RecipeCard = ({ recipe }) => {
                     <Utensils className="w-4 h-4" /> Medium
                   </span>
                 </div>
-               <Link to={`/recipe/${recipe._id}`} className="text-[#FF4500] font-bold text-sm hover:underline"> 
+               <Link to={`/recipes/get-recipes/${recipe._id}`} className="text-[#FF4500] font-bold text-sm hover:underline"> 
                  View Recipe
                </Link>
             </div>     

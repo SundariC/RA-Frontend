@@ -10,6 +10,7 @@ import RecipeDetail from './pages/RecipeDetail';
 import AddRecipe from './pages/AddRecipe';
 import Dashboard from './pages/Dashboard';
 import Footer from './components/Footer';
+import EditRecipe from './pages/EditRecipe';
 
 function App() {
     return (
@@ -22,8 +23,9 @@ function App() {
             <Routes>
             <Route path= "/" element={<Home />} />
             <Route path= "/auth" element={<Auth />} />
-            <Route path= "/recipe/:id" element={<RecipeDetail />} />
+            <Route path= "/recipes/get-recipes/:id" element={<RecipeDetail />} />
             <Route path= "/add-recipe" element={<AddRecipe />} />
+            <Route path="/edit-recipe/:id" element={<EditRecipe />} />
             <Route path= "/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
             </Routes>
             <Footer />

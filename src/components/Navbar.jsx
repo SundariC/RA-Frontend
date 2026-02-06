@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { User, LayoutDashboard, PlusCircle, LogOut, MessageSquare, ChevronDown, Send, Loader2 } from "lucide-react";
+import { User, LayoutDashboard, Home, LogOut, MessageSquare, ChevronDown, Send, Loader2 } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
@@ -50,7 +50,7 @@ const Navbar = () => {
 
         {!user ? (
           <Link to="/auth" className="bg-[#FF4500] text-white px-6 py-2 rounded-full font-bold hover:shadow-lg transition-all">
-            Login
+            Login/SignUp
           </Link>
         ) : (
           <div className="relative">
@@ -90,8 +90,8 @@ const Navbar = () => {
                       <LayoutDashboard size={18} /> Dashboard
                     </Link>
                     
-                    <Link to="/add-recipe" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-orange-50 hover:text-[#FF4500] rounded-2xl transition-all font-semibold text-sm">
-                      <PlusCircle size={18} /> Add New Recipe
+                    <Link to="/" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-orange-50 hover:text-[#FF4500] rounded-2xl transition-all font-semibold text-sm">
+                      <Home size={18} /> Home
                     </Link>
 
                     {/* Integrated Feedback Box */}

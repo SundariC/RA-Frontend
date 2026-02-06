@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { Plus, Utensils, Trash2, Edit, Loader2, ChefHat, XCircle } from "lucide-react";
+import { Plus, Trash2, Edit, Loader2, ChefHat, XCircle, Eye } from "lucide-react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -16,8 +16,6 @@ const Dashboard = () => {
     const fetchRecipes = async () => {
       if (!user?.userID) return;
       try {
-        // Double check your backend index.js: if it's app.use("/api/recipes", ...) 
-        // then this URL is correct.
         const res = await axios.get(`http://localhost:3000/api/recipes/user/${user.userID}`);
         setMyRecipes(res.data);
       } catch (err) {
@@ -29,43 +27,42 @@ const Dashboard = () => {
     fetchRecipes();
   }, [user?.userID]);
 
-  const handleDelete = async (recipeId) => {
-    if (window.confirm("Are you sure you want to delete this recipe?")) {
-      try {
-        // Matches your route: router.delete("/delete-recipe/:id")
-        await axios.delete(`http://localhost:3000/api/recipes/delete-recipe/${recipeId}`);
-        toast.success("Recipe deleted!");
-        setMyRecipes(myRecipes.filter((r) => r._id !== recipeId));
-      } catch (err) {
-        toast.error("Failed to delete recipe",err);
-      }
-    }
+  // This opens our custom modal instead of window.confirm
+  const openDeleteModal = (id) => {
+    setDeleteId(id);
   };
 
   const confirmDelete = async () => {
-  try {
-    await axios.delete(`http://localhost:3000/api/recipes/delete-recipe/${deleteId}`);
-    toast.success("Recipe deleted successfully!");
-    setMyRecipes(myRecipes.filter((r) => r._id !== deleteId));
-    setDeleteId(null); // Modal-ah close pannum
-  } catch (err) {
-    toast.error("Error deleting recipe",err);
-  }
-};
+    try {
+      // Corrected singular/plural based on your earlier route discussion
+      await axios.delete(`http://localhost:3000/api/recipes/delete-recipe/${deleteId}`);
+      toast.success("Recipe deleted successfully!");
+      setMyRecipes(myRecipes.filter((r) => r._id !== deleteId));
+      setDeleteId(null); 
+    } catch (err) {
+      toast.error("Error deleting recipe");
+      console.error(err);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] pt-24 pb-12 px-6">
       <div className="max-w-6xl mx-auto">
+        
+        {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-10 bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
           <div className="flex items-center gap-5">
             <div className="w-16 h-16 bg-gradient-to-tr from-[#FF4500] to-orange-400 rounded-2xl flex items-center justify-center text-white shadow-lg">
               <ChefHat size={32} />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-slate-800 tracking-tight tracking-tight uppercase">Chef {user?.username}</h1>
+              <h1 className="text-2xl font-black text-slate-800 tracking-tight uppercase">Chef {user?.username}</h1>
               <p className="text-slate-500 font-medium tracking-tight">You have {myRecipes.length} recipes in your collection</p>
             </div>
           </div>
+          <Link to="/add-recipe" className="mt-4 md:mt-0 px-6 py-3 bg-[#FF4500] text-white rounded-xl font-bold hover:shadow-lg hover:shadow-orange-200 transition-all flex items-center gap-2">
+             <Plus size={20}/> New Recipe
+          </Link>
         </div>
 
         {loading ? (
@@ -73,27 +70,36 @@ const Dashboard = () => {
         ) : myRecipes.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {myRecipes.map((recipe) => (
-              <div key={recipe._id} className="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 group">
-                <div className="h-52 relative">
-                  {/* Schema uses 'image' (URL from Cloudinary) */}
-                  <img src={recipe.image} alt={recipe.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <div key={recipe._id} className="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 group flex flex-col h-full">
+                <div className="h-52 relative overflow-hidden">
+                  <img src={recipe.image} alt={recipe.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                   
+                  {/* Quick Action Buttons */}
                   <div className="absolute top-4 right-4 flex gap-2">
                     <button onClick={() => navigate(`/edit-recipe/${recipe._id}`)} className="p-2 bg-white/90 backdrop-blur rounded-xl text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-lg">
                       <Edit size={18} />
                     </button>
-                    <button onClick={() => handleDelete(recipe._id)} className="p-2 bg-white/90 backdrop-blur rounded-xl text-red-600 hover:bg-red-600 hover:text-white transition-all shadow-lg">
+                    <button onClick={() => openDeleteModal(recipe._id)} className="p-2 bg-white/90 backdrop-blur rounded-xl text-red-600 hover:bg-red-600 hover:text-white transition-all shadow-lg">
                       <Trash2 size={18} />
                     </button>
                   </div>
                 </div>
                 
-                <div className="p-6">
-                  {/* CHANGED FROM recipe.name TO recipe.title */}
+                <div className="p-6 flex flex-col flex-grow">
                   <h3 className="font-bold text-lg text-slate-800 mb-2 truncate">{recipe.title}</h3>
-                  <p className="text-slate-500 text-sm line-clamp-2 italic">
-                    {Array.isArray(recipe.instructions) ? recipe.instructions[0] : recipe.instructions}
+                  <p className="text-slate-500 text-sm line-clamp-2 italic mb-6">
+                    {recipe.description}
                   </p>
+                  
+                  {/* View Button - Matches your Card style */}
+                  <div className="mt-auto">
+                    <button 
+                      onClick={() => navigate(`/recipes/get-recipes/${recipe._id}`)} 
+                      className="w-full py-3 bg-slate-50 text-slate-700 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-orange-50 hover:text-[#FF4500] transition-all border border-transparent hover:border-orange-100"
+                    >
+                      <Eye size={18} /> View Recipe
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -107,25 +113,30 @@ const Dashboard = () => {
         )}
       </div>
 
+      {/* CUSTOM DELETE MODAL */}
       {deleteId && (
-  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[2000] flex items-center justify-center p-4">
-    <div className="bg-white p-8 rounded-[2rem] max-w-sm w-full shadow-2xl animate-in zoom-in duration-200">
-      <h3 className="text-xl font-bold text-slate-800 mb-2">Delete Recipe?</h3>
-      <p className="text-slate-500 mb-6 text-sm">Are you sure? This action cannot be undone.</p>
-      <div className="flex gap-4">
-        <button onClick={() => setDeleteId(null)} className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-all">Cancel</button>
-        <button onClick={confirmDelete} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-all shadow-lg shadow-red-100">Delete</button>
-      </div>
-    </div>
-  </div>
-)}
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[2000] flex items-center justify-center p-4">
+          <div className="bg-white p-8 rounded-[2.5rem] max-w-sm w-full shadow-2xl animate-in fade-in zoom-in duration-300">
+            <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mb-6 mx-auto">
+               <Trash2 size={32} />
+            </div>
+            <h3 className="text-2xl font-black text-slate-800 mb-2 text-center">Are you sure?</h3>
+            <p className="text-slate-500 mb-8 text-center text-sm font-medium">This recipe will be permanently removed from your collection.</p>
+            <div className="flex gap-4">
+              <button onClick={() => setDeleteId(null)} className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition-all">Cancel</button>
+              <button onClick={confirmDelete} className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-bold hover:bg-red-600 transition-all shadow-lg shadow-red-200">Yes, Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      <Link to="/add-recipe" className="fixed bottom-10 right-10 w-16 h-16 bg-[#FF4500] text-white rounded-2xl shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50 group">
+      {/* Floating Add Button */}
+      {/* <Link to="/add-recipe" className="fixed bottom-10 right-10 w-16 h-16 bg-[#FF4500] text-white rounded-2xl shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50 group">
         <Plus size={32} />
         <span className="absolute right-20 bg-slate-800 text-white text-xs font-bold py-2 px-4 rounded-lg opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap">
           Add New Recipe
         </span>
-      </Link>
+      </Link> */}
     </div>
   );
 };
